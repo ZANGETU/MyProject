@@ -62,7 +62,6 @@ namespace YouTube_thumbnail_Save
             {
                 videoId = videoId.Substring(0, index);
             }
-
             return videoId;
         }
 
@@ -78,9 +77,7 @@ namespace YouTube_thumbnail_Save
             {
                 return videoListResponse.Items[0].Snippet.Thumbnails.Maxres.Url;
             }
-
             return "";
-
         }
 
         private void Form1_Load(object sender, EventArgs e)
