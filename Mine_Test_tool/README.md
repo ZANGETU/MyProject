@@ -18,5 +18,5 @@ Please obtain the installation instructions on your own.
 
 /Do not distribute the code as is without modification.
 
-/Please mention the name of YURIRIRI when you distribute the tools created in this project.
+/Please mention the name of YURIRI when you distribute the tools created in this project.
 
