@@ -162,6 +162,7 @@
             }
         }
 
+        //なくてもいい
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
             if(comboBox2.SelectedItem == null)
