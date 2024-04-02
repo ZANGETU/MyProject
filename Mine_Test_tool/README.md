@@ -6,7 +6,7 @@ Visual Studio is required to use this project.
 
 Please obtain the installation instructions on your own.
 
-##What you need to run the project
+## What you need to run the project
 
 1. Visual Studio
 
@@ -14,7 +14,7 @@ Please obtain the installation instructions on your own.
 
 3. Minecraft (Java)
 
-##Terms of Use
+## Terms of Use
 
 /Do not distribute the code as is without modification.
 
