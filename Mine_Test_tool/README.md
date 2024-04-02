@@ -12,8 +12,8 @@ Please obtain the installation instructions on your own.
 
 2. motivation
 
-3. Minecraft (Java)
+3. minecraft (Java)
 
 ## Terms of Use
 
-Do not distribute the code as is without modification.
+Do not redistribute the code as is without modification.
