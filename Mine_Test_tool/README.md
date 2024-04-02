@@ -16,4 +16,4 @@ Please obtain the installation instructions on your own.
 
 ## Terms of Use
 
-/Do not distribute the code as is without modification.
+Do not distribute the code as is without modification.
