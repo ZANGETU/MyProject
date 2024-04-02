@@ -17,6 +17,3 @@ Please obtain the installation instructions on your own.
 ## Terms of Use
 
 /Do not distribute the code as is without modification.
-
-/Please mention the name of YURIRI when you distribute the tools created in this project.
-
