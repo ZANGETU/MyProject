@@ -159,12 +159,12 @@ namespace Minecraft_Potion_Editor
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            System.Diagnostics.Process.Start("https://discord.gg/VVDbGMc");
+            System.Diagnostics.Process.Start("");
         }
 
         private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            System.Diagnostics.Process.Start("https://www.youtube.com/channel/UCb4Mm8x9neswkzs572aHObA");
+            System.Diagnostics.Process.Start("");
         }
 
         private void button4_Click(object sender, EventArgs e)
@@ -187,5 +187,4 @@ namespace Minecraft_Potion_Editor
     }
 }
 
-//ふぅ疲れたぜ By YURIRI
-//©2022-2024 YURIRI
+//©2024 YURIRI
