@@ -22,3 +22,8 @@ The finished product can be obtained from my website or on Discord.
 * Do not claim this program as your own.
 * If you use this program, you must include a link to my page.
 
+## Notes
+* This is designed for people who have experience with C#.
+* It is not intended for beginners.
+* Running this program as is will 100% result in errors.
+
