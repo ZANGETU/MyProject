@@ -35,11 +35,6 @@ namespace Minecraft_Potion_Editor
             DiscordRpc.UpdatePresence(ref this.presence);
         }
 
-        private void groupBox2_Enter(object sender, EventArgs e)
-        {
-
-        }
-
         private void button1_Click(object sender, EventArgs e)
         {
             richTextBox1.Clear();
