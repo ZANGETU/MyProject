@@ -40,9 +40,9 @@ client.once('ready', async () => {
   .map(command => command.toJSON());
   try {
     await client.application.commands.set(commands);
-    console.log('コマンドが登録されました！');
+    console.log('起動に成功しました');
   } catch (error) {
-    console.error('コマンドの登録に失敗しました:', error);
+    console.error('起動に失敗しました:', error);
   }
 });
 
