@@ -212,9 +212,8 @@ client.once('ready', async () => {
   ];
   const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
   try {
-    console.log('スラッシュコマンドを登録中...');
     await rest.put(Routes.applicationCommands(process.env.CLIENT_ID), { body: commands });
-    console.log('スラッシュコマンドの登録が完了しました！');
+    console.log('起動に成功しました');
   } catch (error) {
     console.error(error);
   }
