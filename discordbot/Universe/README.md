@@ -1,3 +1,3 @@
 # universe
 
-## Collection of DiscordBot projects using NASAAPI
+Collection of DiscordBot projects using NASAAPI
