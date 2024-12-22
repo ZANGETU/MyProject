@@ -31,5 +31,3 @@
 - The license for this program is owned `by ZANGETU (YURIRI)`. Please do not modify or redistribute the program without permission.
 
 - If you use this on Discord, please either provide a link to this GitHub project somewhere in your bot or mention my name. Thank you.
-
-- For any other questions, please feel free to reach out to my Discord server.
