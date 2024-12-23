@@ -28,6 +28,6 @@
 
 ## Prohibitions
 
-- Please do not modify or redistribute the program without permission.
+- Please do not redistribute the projects as they are.
 
 - If you use this on Discord, please either provide a link to this GitHub project somewhere in your bot or mention my name. Thank you.
