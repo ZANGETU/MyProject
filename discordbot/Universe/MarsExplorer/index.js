@@ -32,9 +32,9 @@ const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
             Routes.applicationCommands(process.env.CLIENT_ID),
             { body: commands }
         );
-        console.log('正常に起動しました');
+        console.log('コマンドが正常に読み込まれました');
     } catch (error) {
-        console.error('起動時にエラーが発生しました', error);
+        console.error(error);
     }
 })();
 
