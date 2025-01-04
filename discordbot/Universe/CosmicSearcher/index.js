@@ -21,9 +21,9 @@ const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
             Routes.applicationCommands(process.env.CLIENT_ID),
             { body: commands }
         );
-        console.log('起動に成功しました');
+        console.log('コマンドの読み込みに成功しました');
     } catch (error) {
-        console.error('起動に失敗しました', error);
+        console.error(error);
     }
 })();
 const sanitizeHtml = (html) => html.replace(/<\/?[^>]+(>|$)/g, ''); 
@@ -41,7 +41,7 @@ client.on('interactionCreate', async interaction => {
             const response = await axios.get(url);
             const data = response.data;
             if (!data.collection || data.collection.items.length === 0) {
-                return await interaction.editReply(`**${query}** に一致する画像が見つかりませんでした。`);
+                return await interaction.editReply(`**${query}** に一致する画像が見つかりませんでした`);
             }
             const items = data.collection.items.slice(0, 5);
             let currentIndex = 0;
@@ -90,7 +90,7 @@ client.on('interactionCreate', async interaction => {
             });
         } catch (error) {
             console.error('画像取得中にエラーが発生しました:', error);
-            await interaction.editReply('画像取得中にエラーが発生しました。');
+            await interaction.editReply('画像取得中にエラーが発生しました');
         }
     }
 });
