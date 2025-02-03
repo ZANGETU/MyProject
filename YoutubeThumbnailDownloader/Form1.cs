@@ -15,20 +15,17 @@ namespace YouTube_thumbnail_Save
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {
-
         }
 
         private async void button1_Click(object sender, EventArgs e)
         {
             string link = textBox1.Text;
             string videoId = GetVideoId(link);
-
             if (string.IsNullOrEmpty(videoId))
             {
                 MessageBox.Show("YouTubeリンクが無効です","エラー");
                 return;
             }
-
             string thumbnailUrl = await GetThumbnailUrl(videoId);
             pictureBox1.Load(thumbnailUrl);
         }
@@ -40,7 +37,6 @@ namespace YouTube_thumbnail_Save
             {
                 return "";
             }
-
             string videoId = link.Substring(index + 3);
             index = videoId.IndexOf("&");
             if (index != -1)
@@ -57,7 +53,6 @@ namespace YouTube_thumbnail_Save
             videoListRequest.MaxResults = 1;
             videoListRequest.Fields = "items(snippet(thumbnails(maxres)))";
             var videoListResponse = await videoListRequest.ExecuteAsync();
-
             if (videoListResponse.Items.Count > 0)
             {
                 return videoListResponse.Items[0].Snippet.Thumbnails.Maxres.Url;
