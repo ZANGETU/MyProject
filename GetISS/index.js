@@ -11,7 +11,7 @@ async function getISS(){
         console.log(`経度: ${keido.toFixed(2)}`);
         console.log(`高度: ${kodo.toFixed(2)} km`);
         console.log(`速度: ${sokudo.toFixed(2)} km/h`);
-        console.log(`観測の可能性: ${kansoku === 'eclipsed' ? '見えねーよ' : '見えるぞ'}`);
+        console.log(`観測の可能性: ${kansoku === 'eclipsed' ? 'できる' : 'できない'}`);
     } catch (error) {
         console.error('データの取得エラー', error.message);
     }
