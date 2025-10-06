@@ -25,9 +25,9 @@ Also, if the SDK is not installed on your PC, please install it (version 1.7 or 
 I will not answer questions about package installation methods or other inquiries; please research them yourself.
 
 
-
-* ### What you need?
+### What you need?
 * VisualStudio2022
 * SDK
 * Windows11
 * It takes motivation.
+
