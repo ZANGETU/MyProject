@@ -1,6 +1,8 @@
-MIT License
+MIT License (Modified)
 
-Copyright (c) 2024 YURIRI
+Copyright (c) 2025 YURIRI
+
+-----------------------
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -9,8 +11,15 @@ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. Redistribution or publication of the Software **without modification**
+   (including uploading the original, unmodified files to public repositories
+   such as GitHub) is **prohibited**.
+
+2. Redistribution or publication of **modified versions** of the Software is
+   permitted under this license, provided that the following conditions are met:
+   - The above copyright notice and this permission notice shall be included in
+     all copies or substantial portions of the Software.
+   - The modified version must clearly state that it has been modified.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
