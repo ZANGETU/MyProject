@@ -1,4 +1,4 @@
-namespace App1
+namespace DiscordRPCEditor
 {
     public sealed partial class MainWindow : Window
     {
@@ -170,4 +170,5 @@ namespace App1
         }
     }
 }
+
 
