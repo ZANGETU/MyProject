@@ -27,7 +27,8 @@ I will not answer questions about package installation methods or other inquirie
 
 ### What you need?
 * VisualStudio2022
-* SDK
-* Windows11
+* SDK(Required)
+* Windows11(Required)
 * It takes motivation.
+
 
