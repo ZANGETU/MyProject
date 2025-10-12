@@ -8,6 +8,8 @@ The DiscordRichPresence package is required for execution.
 
 This project is intended for experienced programmers.
 
+## If done well, it can look like the image. The layout is just an example...
+<img width="786" height="793" alt="image" src="https://github.com/user-attachments/assets/36974ffe-acf1-48f4-84ea-2354275eb5c5" />
 
 
 ### **⚠Caution**
@@ -30,5 +32,6 @@ I will not answer questions about package installation methods or other inquirie
 * SDK(Required)
 * Windows11(Required)
 * It takes motivation.
+
 
 
