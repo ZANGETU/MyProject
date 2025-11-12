@@ -1,7 +1,17 @@
-const { Client, GatewayIntentBits, EmbedBuilder, REST, Routes, SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { Client, GatewayIntentBits, Partials, EmbedBuilder, REST, Routes, SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const axios = require('axios');
 require('dotenv').config();
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+
+const client = new Client({intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent,
+    ],
+    partials: [
+        Partials.Channel,
+        Partials.Message,
+    ],
+});
 
 const commands = [
     new SlashCommandBuilder()
@@ -21,9 +31,9 @@ const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
             Routes.applicationCommands(process.env.CLIENT_ID),
             { body: commands }
         );
-        console.log('コマンドの読み込みに成功しました');
+        console.log('起動に成功しました');
     } catch (error) {
-        console.error(error);
+        console.error('起動に失敗しました', error);
     }
 })();
 const sanitizeHtml = (html) => html.replace(/<\/?[^>]+(>|$)/g, ''); 
@@ -41,7 +51,7 @@ client.on('interactionCreate', async interaction => {
             const response = await axios.get(url);
             const data = response.data;
             if (!data.collection || data.collection.items.length === 0) {
-                return await interaction.editReply(`**${query}** に一致する画像が見つかりませんでした`);
+                return await interaction.editReply(`**${query}** に一致する画像が見つかりませんでした。`);
             }
             const items = data.collection.items.slice(0, 5);
             let currentIndex = 0;
@@ -85,12 +95,17 @@ client.on('interactionCreate', async interaction => {
                 }
                 await i.update({ embeds: [embeds[currentIndex]], components: [row] });
             });
-            collector.on('end', () => {
-                message.edit({ components: [] });
+            collector.on('end', async () => {
+                try {
+                    await message.edit({ components: [] });
+                } catch (error) {
+                    if (error.code === 'ChannelNotCached') return;
+                    console.error('エラーが発生しました:', error);
+                }
             });
         } catch (error) {
             console.error('画像取得中にエラーが発生しました:', error);
-            await interaction.editReply('画像取得中にエラーが発生しました');
+            await interaction.editReply('画像取得中にエラーが発生しました。');
         }
     }
 });
