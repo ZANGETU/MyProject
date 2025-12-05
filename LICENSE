@@ -21,6 +21,12 @@ furnished to do so, subject to the following conditions:
      all copies or substantial portions of the Software.
    - The modified version must clearly state that it has been modified.
 
+3. **Attribution Requirement**  
+   When using programs from the folder ("discordbot") in a Discord bot, you must
+   attribute the author by including the author's name ("YURIRI") or a link to
+   the author's GitHub profile in the bot's description or another prominent
+   location.
+
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
