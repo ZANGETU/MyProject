@@ -44,14 +44,11 @@ namespace DiscordRPCEditor
             {
                 acrylicController = new DesktopAcrylicController();
                 backdropConfig = new SystemBackdropConfiguration();
-
                 this.Activated += Window_Activated;
                 this.Closed += Window_Closed;
                 ((FrameworkElement)this.Content).ActualThemeChanged += Window_ThemeChanged;
-
                 backdropConfig.IsInputActive = true;
                 SetBackdropTheme();
-
                 acrylicController.AddSystemBackdropTarget(this.As<ICompositionSupportsSystemBackdrop>());
                 acrylicController.SetSystemBackdropConfiguration(backdropConfig);
             }
