@@ -1,5 +1,14 @@
-<p>You can restrict Discord invite links, YouTube links, Twitter (X) links, and Tiktok links by users.<br>
-Administrators can also set links (custom links) that they wish to restrict (these must be valid links).<br>
-You can also restrict links by domain. This must be a valid TLD.<br>
-Currently only admins are unaffected!<br>
-You can use it by specifying the channels you want to restrict and the channels you want to send logs to!</p>
+# LinkBotProgram
+
+Discord invite links and YouTube links will be monitored, and if sent to a banned channel, they will be deleted.
+
+When a prohibited link is sent, a log is sent to the specified channel. Additionally.
+
+you can configure an ON/OFF setting for each channel to determine whether links should be prohibited.
+
+You can also set custom links and monitor any links you like.
+
+You can configure whether to monitor shortened URLs. Examples include (‘bit.ly’, ‘t.co’, ‘tinyurl.com’, ‘is.gd’, ‘buff.ly’)
+
+This program is still incomplete.
+I'll update it when I have time!!
