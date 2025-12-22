@@ -1,396 +1,277 @@
 require('dotenv').config();
 const fs = require('fs');
-const {Client,GatewayIntentBits,Partials,EmbedBuilder,PermissionsBitField,REST,Routes,} = require('discord.js');
+const {
+  Client,
+  GatewayIntentBits,
+  PermissionsBitField,
+  SlashCommandBuilder,
+  REST,
+  Routes,
+  EmbedBuilder,
+  ChannelType,
+  MessageFlags
+} = require('discord.js');
 
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildMembers,
-  ],
-  partials: [Partials.Message, Partials.Channel, Partials.User],
+    GatewayIntentBits.MessageContent
+  ]
 });
 
-//正規表現
-const linkPatterns = {
-  discord: /(?:https?:\/\/)?(?:www\.)?(?:discord\.gg|discord\.com\/invite)\/[^\s]+/i, //Discord招待リンク
-  youtube: /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|channel\/|user\/|c\/|@)|youtu\.be\/)[^\s]+/i, //YouTubeリンク
-  twitter: /(?:https?:\/\/)?(?:www\.)?(?:twitter\.com\/|x\.com\/)[^\s]+/i, //Twitter(X)リンク
-  tiktok: /(?:https?:\/\/)?(?:www\.)?tiktok\.com\/[^\s]+/i, //TikTokリンク
-};
-//カスタムリンク
-let customLinks = [];
-//設定保存用
-const monitoredChannels = new Map();
-const logChannels = new Map();
-const domainLists = new Map();
-//設定保存関数
+const FILE = './settings.json';
+let settings = fs.existsSync(FILE)
+  ? JSON.parse(fs.readFileSync(FILE, 'utf8'))
+  : {};
+
 function saveSettings() {
-  const data = {
-    monitoredChannels: Object.fromEntries(monitoredChannels),
-    logChannels: Object.fromEntries(logChannels),
-    customLinks,
-    domainLists: Object.fromEntries([...domainLists].map(([k, v]) => [k, [...v]])),
-  };
-  fs.writeFileSync('settings.json', JSON.stringify(data, null, 2));
+  fs.writeFileSync(FILE, JSON.stringify(settings, null, 2));
 }
-//設定を読み込む
-function loadSettings() {
-  if (fs.existsSync('settings.json')) {
-    const data = JSON.parse(fs.readFileSync('settings.json'));
-    for (const [channelId, settings] of Object.entries(data.monitoredChannels)) {
-      monitoredChannels.set(channelId, settings);
-    }
-    for (const [guildId, logChannelId] of Object.entries(data.logChannels)) {
-      logChannels.set(guildId, logChannelId);
-    }
-    customLinks = data.customLinks || [];
-    for (const [guildId, domains] of Object.entries(data.domainLists)) {
-      if (!(domains instanceof Set)) {
-        domainLists.set(guildId, new Set(Object.values(domains)));
-      } else {
-        domainLists.set(guildId, domains);
-      }
-    }
+
+function getGuildSetting(guildId) {
+  if (!settings[guildId]) {
+    settings[guildId] = {
+      channels: {},
+      logChannel: null,
+      bypassRoles: []
+    };
+  }
+  return settings[guildId];
+}
+
+function getChannelSetting(guildId, channelId) {
+  const guild = getGuildSetting(guildId);
+  if (!guild.channels[channelId]) {
+    guild.channels[channelId] = {
+      youtube: false,
+      discord: false,
+      short: false,
+      custom: []
+    };
+  }
+  return guild.channels[channelId];
+}
+
+const YOUTUBE_DOMAINS = ['youtube.com', 'youtu.be'];
+const DISCORD_DOMAINS = ['discord.gg', 'discord.com'];
+const SHORT_DOMAINS = ['bit.ly', 't.co', 'tinyurl.com', 'is.gd', 'buff.ly'];
+
+function extractUrls(text) {
+  return text.match(/https?:\/\/[^\s]+/gi) || [];
+}
+
+function normalizeDomain(input) {
+  try {
+    const url = new URL(input.startsWith('http') ? input : `https://${input}`);
+    return url.hostname.replace(/^www\./, '');
+  } catch {
+    return null;
   }
 }
-//起動時に設定を読み込む
-loadSettings();
-client.once('ready', async () => {
-  console.log(`${client.user.tag} でログインしました！`);
-  const commands = [
-    {
-      //メイン
-      name: 'monitor',
-      description: '監視するリンクの設定を行います',
-      dm_permission: false,
-      options: [
-        {
-          type: 1,
-          name: 'set',
-          description: '監視するリンクを設定できます',
-          options: [
-            {
-              type: 7,
-              name: 'channel',
-              description: '監視するチャンネル',
-              required: true,
-            },
-            {
-              type: 5,
-              name: 'discord',
-              description: 'Discord招待リンクの削除',
-              required: true,
-            },
-            {
-              type: 5,
-              name: 'youtube',
-              description: 'あらゆるYouTubeリンクの削除',
-              required: true,
-            },
-            {
-              type: 5,
-              name: 'twitter',
-              description: 'Twitter(X)のツイートリンクの削除',
-              required: true,
-            },
-            {
-              type: 5,
-              name: 'tiktok',
-              description: 'TikTokリンクの削除',
-              required: true,
-            },
-          ],
-        },
-        {
-          type: 1,
-          name: 'remove',
-          description: '監視を解除します',
-          options: [
-            {
-              type: 7,
-              name: 'channel',
-              description: '解除するチャンネル',
-              required: true,
-            },
-          ],
-        },
-        {
-          type: 1,
-          name: 'log',
-          description: 'ログ送信先のチャンネルを設定',
-          options: [
-            {
-              type: 7,
-              name: 'channel',
-              description: 'ログを送るチャンネル',
-              required: true,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      //カスタムリンク
-      name: 'customlink',
-      description: 'カスタムリンクの管理を行います',
-      dm_permission: false,
-      options: [
-        {
-          type: 1,
-          name: 'add',
-          description: 'カスタムリンクを追加します',
-          options: [
-            {
-              type: 3,
-              name: 'link',
-              description: '追加するリンク',
-              required: true,
-            },
-          ],
-        },
-        {
-          type: 1,
-          name: 'remove',
-          description: 'カスタムリンクを削除します',
-          options: [
-            {
-              type: 3,
-              name: 'link',
-              description: '削除するリンク',
-              required: true,
-            },
-          ],
-        },
-        {
-          type: 1,
-          name: 'list',
-          description: '登録されているカスタムリンクを表示します',
-        },
-      ],
-    },
-    {
-      //ドメイン
-      name: 'domain',
-      description: '特定のドメインを削除対象に設定します',
-      dm_permission: false,
-      options: [
-        {
-          type: 1, 
-          name: 'add',
-          description: '削除対象のドメインを追加します',
-          options: [
-            {
-              type: 3,
-              name: 'domain',
-              description: '追加するドメイン(例: .com .jp)',
-              required: true,
-            },
-          ],
-        },
-        {
-          type: 1,
-          name: 'remove',
-          description: '削除対象からドメインを解除します',
-          options: [
-            {
-              type: 3,
-              name: 'domain',
-              description: '削除するドメイン(例: .com .jp)',
-              required: true,
-            },
-          ],
-        },
-        {
-          type: 1,
-          name: 'list',
-          description: '現在削除対象に登録されているドメインを表示します',
-        },
-      ],
-    },
-  ];
-  const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
-  try {
-    await rest.put(Routes.applicationCommands(process.env.CLIENT_ID), { body: commands });
-    console.log('起動に成功しました');
-  } catch (error) {
-    console.error(error);
-  }
-});
 
-//メッセージ削除とログ送信
-async function deleteMessageAndLog(message, reason) {
-  try {
-    await message.delete();
-    const logChannelId = logChannels.get(message.guild.id);
-    const logChannel = message.guild.channels.cache.get(logChannelId);
-    if (logChannel?.isTextBased()) {
-      const embed = new EmbedBuilder()
-        .setColor('Red')
-        .setTitle('メッセージが削除されました')
-        .setDescription(`**理由:** ${reason}\n**投稿者:** ${message.author} (${message.author.tag})`)
-        .setThumbnail(message.author.displayAvatarURL({ dynamic: true }))
-        .addFields(
-          { name: '投稿内容', value: message.content || 'メッセージなし' },
-          { name: '投稿されたチャンネル', value: `<#${message.channel.id}>`, inline: true }, 
-          { name: '投稿時刻', value: `<t:${Math.floor(message.createdTimestamp / 1000)}:F>`, inline: true } 
-        )
-        .setTimestamp();
-      logChannel.send({ embeds: [embed] });
-    }
+function matchDomain(host, domains) {
+  return domains.some(d => host === d || host.endsWith(`.${d}`));
+}
 
-    //DMに警告
-    const warningEmbed = new EmbedBuilder()
-      .setColor('Yellow')
-      .setTitle('警告')
-      .setDescription('以下のリンクは送信が禁止されています:\n' + reason)
-      .addFields(
-        { name: '投稿者', value: message.author.tag, inline: true },
-        { name: '違反リンク', value: message.content, inline: true }
+const command = new SlashCommandBuilder()
+  .setName('linkblock')
+  .setDescription('リンクブロック設定')
+  .setDMPermission(false)
+  .addSubcommand(s =>
+    s.setName('channel')
+      .setDescription('このチャンネルの監視ON/OFF')
+      .addStringOption(o =>
+        o.setName('mode')
+          .setDescription('on / off')
+          .setRequired(true)
+          .addChoices(
+            { name: 'ON', value: 'on' },
+            { name: 'OFF', value: 'off' }
+          )
       )
-      .setTimestamp();
-    await message.author.send({ embeds: [warningEmbed] });
-  } catch (error) {
-    console.error('メッセージの削除に失敗しました', error);
-  }
-}
+  )
+  .addSubcommand(s =>
+    s.setName('channel_list')
+      .setDescription('監視中チャンネル一覧')
+  )
+  .addSubcommand(s => s.setName('youtube').setDescription('YouTube切替'))
+  .addSubcommand(s => s.setName('discord').setDescription('Discord招待切替'))
+  .addSubcommand(s => s.setName('short').setDescription('短縮URL切替'))
+  .addSubcommand(s =>
+    s.setName('log')
+      .setDescription('ログチャンネル設定')
+      .addChannelOption(o =>
+        o.setName('channel')
+          .addChannelTypes(ChannelType.GuildText)
+          .setDescription('ログ送信先')
+          .setRequired(true)
+      )
+  )
+  .addSubcommandGroup(g =>
+    g.setName('custom')
+      .setDescription('カスタムURL管理')
+      .addSubcommand(s =>
+        s.setName('add')
+          .setDescription('追加')
+          .addStringOption(o =>
+            o.setName('domain').setDescription('例: github.com').setRequired(true)
+          )
+      )
+      .addSubcommand(s =>
+        s.setName('remove')
+          .setDescription('削除')
+          .addStringOption(o =>
+            o.setName('domain').setDescription('削除するURL').setRequired(true)
+          )
+      )
+      .addSubcommand(s =>
+        s.setName('list').setDescription('一覧')
+      )
+  );
 
-//メッセージ作成
-client.on('messageCreate', async (message) => {
-  if (message.author.bot || !message.guild) return;
-  const settings = monitoredChannels.get(message.channel.id);
-  if (!settings) return;
-  if (message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return;
-  for (const [type, regex] of Object.entries(linkPatterns)) {
-    if (settings[type] && regex.test(message.content)) {
-      await deleteMessageAndLog(message, `${type}`);
-      return;
-    }
-  }
-  //カスタムリンク削除
-  for (const link of customLinks) {
-    if (message.content.includes(link)) {
-      await deleteMessageAndLog(message, `カスタムリンク`);
-      return;
-    }
-  }
-  //ドメイン削除
-  const guildId = message.guild.id;
-  const domainSet = domainLists.get(guildId);
-  if (domainSet) {
-    for (const domain of domainSet) {
-      if (message.content.toLowerCase().includes(domain)) {
-        await deleteMessageAndLog(message, `特定ドメイン (${domain})`);
-        return;
-      }
-    }
-  }
+client.once('ready', async () => {
+  const rest = new REST({ version: '10' }).setToken(process.env.BOT_TOKEN);
+  await rest.put(
+    Routes.applicationGuildCommands(
+      process.env.CLIENT_ID,
+      process.env.GUILD_ID
+    ),
+    { body: [command.toJSON()] }
+  );
+  console.log(`Logged in as ${client.user.tag}`);
 });
 
-client.on('interactionCreate', async (interaction) => {
-  if (!interaction.isCommand()) return;
-  const { commandName, options, guild, member } = interaction;
-  if (!member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-    return interaction.reply({
-      content: 'このコマンドは管理者のみ使用できます',
-      ephemeral: true,
+client.on('interactionCreate', async i => {
+  if (!i.isChatInputCommand()) return;
+
+  if (!i.inGuild()) {
+    return i.reply({
+      content: '⚠️ DMでは使用できません',
+      flags: MessageFlags.Ephemeral
     });
   }
-  //コマンド処理
-  if (commandName === 'monitor') {
-    const subCommand = options.getSubcommand();
-    if (subCommand === 'set') {
-      const channel = options.getChannel('channel');
-      const discord = options.getBoolean('discord');
-      const youtube = options.getBoolean('youtube');
-      const twitter = options.getBoolean('twitter');
-      const tiktok = options.getBoolean('tiktok');
-
-      monitoredChannels.set(channel.id, { discord, youtube, twitter, tiktok });
+  if (!i.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+    return i.reply({
+      content: '⚠️ 管理者のみ使用できます',
+      flags: MessageFlags.Ephemeral
+    });
+  }
+  const guild = getGuildSetting(i.guildId);
+  const sub = i.options.getSubcommand();
+  const group = i.options.getSubcommandGroup(false);
+  if (sub === 'channel') {
+    const mode = i.options.getString('mode');
+    if (mode === 'on') {
+      getChannelSetting(i.guildId, i.channelId);
       saveSettings();
-      return interaction.reply(`チャンネル \`${channel.name}\` のリンク監視設定が完了しました`);
-    } else if (subCommand === 'remove') {
-      const channel = options.getChannel('channel');
-      monitoredChannels.delete(channel.id);
+      return i.reply('✅ このチャンネルを監視対象にしました');
+    } else {
+      delete guild.channels[i.channelId];
       saveSettings();
-      return interaction.reply(`チャンネル \`${channel.name}\` のリンク監視設定が解除されました`);
-    } else if (subCommand === 'log') {
-      const channel = options.getChannel('channel');
-      logChannels.set(guild.id, channel.id);
-      saveSettings();
-      return interaction.reply(`ログ送信先チャンネルが \`${channel.name}\` に設定されました`);
+      return i.reply('❌ このチャンネルの監視を解除しました');
     }
   }
-  //カスタムリンク
-  if (commandName === 'customlink') {
-    const subCommand = options.getSubcommand();
-
-    if (subCommand === 'add') {
-      const link = options.getString('link');
-      //リンクの形式が有効か確認する正規表現
-      const urlPattern = /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(:\d+)?(\/[^\s]*)?$/;
-      if (!urlPattern.test(link)) {
-        return interaction.reply({
-          content: `リンク \`${link}\` は無効な形式です。正しいURLを入力してください(例: https://example.com)`,
-          ephemeral: true,
-        });
-      }
-      customLinks.push(link);
-      saveSettings();
-      return interaction.reply(`カスタムリンク \`${link}\`が追加されました`);
-    } else if (subCommand === 'remove') {
-      const link = options.getString('link');
-      customLinks = customLinks.filter(l => l !== link);
-      saveSettings();
-      return interaction.reply(`カスタムリンク \`${link}\`が削除されました`);
-    } else if (subCommand === 'list') {
-      if (customLinks.length === 0) {
-        return interaction.reply('現在、登録されているカスタムリンクはありません');
-      }
-      return interaction.reply(`登録されているカスタムリンク: \n\`${customLinks.join('\n')}\``);
-    }
+  if (sub === 'channel_list') {
+    const list = Object.keys(guild.channels);
+    return i.reply({
+      content: list.length
+        ? list.map(id => `• <#${id}>`).join('\n')
+        : '監視中チャンネルはありません',
+      flags: MessageFlags.Ephemeral
+    });
   }
-  //ドメイン
-  if (commandName === 'domain') {
-    const subCommand = options.getSubcommand();
-    if (subCommand === 'add') {
-      const domain = options.getString('domain');
-      const guildId = guild.id;
-      //ドメインの最後の部分が有効なTLDかどうかを確認する正規表現
-      const domainPattern = /^[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
-      //ドメインがTLDの形式であるか確認
-      if (!domainPattern.test(domain)) {
-        return interaction.reply({
-          content: `ドメイン \`${domain}\` は無効な形式です。有効なTLD(例: .com, .jp)を追加してください。`,
-          ephemeral: true,
-        });
+  if (!guild.channels[i.channelId]) {
+    return i.reply({
+      content: '⚠️ このチャンネルは監視ONではありません',
+      flags: MessageFlags.Ephemeral
+    });
+  }
+  const channelSetting = getChannelSetting(i.guildId, i.channelId);
+  if (['youtube', 'discord', 'short'].includes(sub)) {
+    channelSetting[sub] = !channelSetting[sub];
+    saveSettings();
+    return i.reply(`✅ ${sub} : ${channelSetting[sub] ? 'ON' : 'OFF'}`);
+  }
+  if (sub === 'log') {
+    guild.logChannel = i.options.getChannel('channel').id;
+    saveSettings();
+    return i.reply('✅ ログチャンネルを設定しました');
+  }
+  if (group === 'custom') {
+    if (sub === 'list') {
+      return i.reply({
+        content: channelSetting.custom.join('\n') || '登録なし',
+        flags: MessageFlags.Ephemeral
+      });
+    }
+    const domain = normalizeDomain(i.options.getString('domain'));
+    if (!domain) {
+      return i.reply({
+        content: '⚠️ 無効なURLです',
+        flags: MessageFlags.Ephemeral
+      });
+    }
+    if (sub === 'add' && !channelSetting.custom.includes(domain)) {
+      channelSetting.custom.push(domain);
+    }
+    if (sub === 'remove') {
+      channelSetting.custom = channelSetting.custom.filter(d => d !== domain);
+    }
+    saveSettings();
+    return i.reply('✅ 更新しました');
+  }
+});
+
+client.on('messageCreate', async msg => {
+  if (!msg.guild || msg.author.bot) return;
+  const guild = getGuildSetting(msg.guild.id);
+  const setting = guild.channels[msg.channel.id];
+  if (!setting) return;
+  if (msg.member.roles.cache.some(r => guild.bypassRoles.includes(r.id))) return;
+  const urls = extractUrls(msg.content);
+  let reason = null;
+  for (const url of urls) {
+    try {
+      const host = new URL(url).hostname.replace(/^www\./, '');
+      if (setting.youtube && matchDomain(host, YOUTUBE_DOMAINS)) {
+        reason = 'YouTube';
+        break;
       }
-      //ドメインを削除対象に追加
-      if (!domainLists.has(guildId)) {
-        domainLists.set(guildId, new Set());
+      if (setting.discord && matchDomain(host, DISCORD_DOMAINS)) {
+        reason = 'Discord招待';
+        break;
       }
-      domainLists.get(guildId).add(domain);
-      saveSettings();
-      return interaction.reply(`ドメイン \`${domain}\`が削除対象に追加されました`);
-    } else if (subCommand === 'remove') {
-      const domain = options.getString('domain');
-      const guildId = guild.id;
-      if (domainLists.has(guildId)) {
-        domainLists.get(guildId).delete(domain);
-        saveSettings();
-        return interaction.reply(`ドメイン \`${domain}\`が削除対象から削除されました`);
+      if (setting.short && matchDomain(host, SHORT_DOMAINS)) {
+        reason = '短縮URL';
+        break;
       }
-      return interaction.reply(`ドメイン \`${domain}\`は現在、削除対象にありません`);
-    } else if (subCommand === 'list') {
-      const guildId = guild.id;
-      const domains = domainLists.get(guildId);
-      if (!domains || domains.size === 0) {
-        return interaction.reply('現在、削除対象に登録されているドメインはありません');
+      if (setting.custom.some(d => host === d || host.endsWith(`.${d}`))) {
+        reason = `カスタムURL (${host})`;
+        break;
       }
-      return interaction.reply(`現在、削除対象に登録されているドメイン: \n\`${Array.from(domains).join('\n')}\``);
+    } catch {}
+  }
+  if (!reason) return;
+  await msg.delete().catch(() => {});
+  if (guild.logChannel) {
+    const ch = msg.guild.channels.cache.get(guild.logChannel);
+    if (ch) {
+      ch.send({
+        embeds: [
+          new EmbedBuilder()
+            .setColor('Red')
+            .setTitle('リンク削除')
+            .addFields(
+              { name: '理由', value: reason },
+              { name: 'ユーザー', value: msg.author.tag },
+              { name: 'チャンネル', value: `<#${msg.channel.id}>` },
+              { name: '時間', value: `<t:${Math.floor(Date.now() / 1000)}:F>` }
+            )
+        ]
+      });
     }
   }
 });
 
-client.login(process.env.TOKEN);
+client.login(process.env.BOT_TOKEN);
