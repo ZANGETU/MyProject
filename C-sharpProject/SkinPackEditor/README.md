@@ -1,4 +1,4 @@
-# SkinPackEditor
+# PackEditor
 
 This software allows you to easily create skin packs for Minecraft Bedrock Edition.
 
@@ -19,3 +19,4 @@ The latest version (final release) can be obtained from my Discord server.
 
 - When redistributing this software, please include proper credit
   or contact the author briefly.
+
