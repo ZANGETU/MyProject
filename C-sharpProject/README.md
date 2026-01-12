@@ -9,10 +9,14 @@ Please note that downloading and running the project is entirely at your own ris
 
 Please refrain from redistributing or publishing the Project in its unmodified state. It would make me sad.
 
+Derivative works based on this software may not use the author's name for promotional,
+sales-promoting, or endorsing purposes without permission.
+
 If you have any questions,
 please feel free to visit my Discord server.
 Whether I answer them or not depends entirely on my mood at the time.
 
 If you redistribute it, just give me a quick heads up or include credit, and that's fine.
 
-The finished products for each project can be obtained from my Discord server, my homepage, or via Discord direct message.
+The finished products for each project can be obtained from my Discord server,
+my homepage, or via Discord direct message.
