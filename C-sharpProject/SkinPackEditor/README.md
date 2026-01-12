@@ -20,3 +20,13 @@ The latest version (final release) can be obtained from my Discord server.
 - When redistributing this software, please include proper credit
   or contact the author briefly.
 
+- In the case of redistribution in executable (.exe) form,  
+  this copyright notice, the list of conditions above,  
+  and the disclaimer below must be included  
+  in the documentation and/or other materials accompanying the distribution.
+
+## Disclaimer
+
+This software is provided "as is", without warranty of any kind.  
+The author shall not be held liable for any damages or issues  
+arising from the use of this software.
