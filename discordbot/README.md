@@ -1,16 +1,27 @@
-# discordbot
+# Discord Bot
 
-These programs are created using **discord.js v14**.
+This repository contains programs built with **discord.js v14**.
 
-If you have any questions, please feel free to visit my Discord server.
-Whether I answer your questions depends on my mood at the time.
+## Support / Questions
+If you have any questions, feel free to join my Discord server.  
+*Note: Whether I can answer your questions depends on my mood at the time.*
 
+## External APIs
 Some projects may require external APIs. :)
 
-These programs have only been verified to work on self-hosted servers. If you plan to deploy them on multiple servers, please verify the programs.
+## Supported Environment
+These programs have been tested to work on **self-hosted servers** only.  
+If you plan to deploy them on multiple servers, please test thoroughly beforehand.
 
-## Attribution Requirement
-When using this program in a Discord bot, you must provide attribution by including the author's name (**YURIRI**) or a link to the author's GitHub profile in the bot's description or another prominent location.
+## Attribution
+If you use this program in a Discord bot, redistribute it, or create a derivative work (modified version), you must provide attribution in one of the following ways:
+
+- Include the author name **YURIRI** in the bot description  
+- Or include a link to the author's [GitHub profile](https://github.com/ZANGETU)
+
+This applies to both direct use and redistribution, including derivative works.
+
+
 
 
 
