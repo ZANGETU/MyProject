@@ -3,7 +3,7 @@
 This Discord bot allows you to create **Minecraft Bedrock Edition skin packs (.mcpack)** directly from Discord.  
 Simply upload skin images and the bot will automatically generate a `.mcpack` file.
 
-*Note: This program is not yet complete.*
+*Note: This program is not yet complete.As a result, there may be many bugs*
 
 When using this program, please follow the instructions in the **README.md** and **LICENSE** files located in the `discordbot` folder.
 
